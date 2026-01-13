@@ -10,6 +10,8 @@ import { safelyParseJSON } from "@excalidraw/common";
 
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 
+import { generateMermaidDiagram } from "../ai/text-to-diagram";
+
 export const AIComponents = ({
   excalidrawAPI,
 }: {
@@ -101,59 +103,67 @@ export const AIComponents = ({
       <TTDDialog
         onTextSubmit={async (input) => {
           try {
-            const response = await fetch(
-              `${
-                import.meta.env.VITE_APP_AI_BACKEND
-              }/v1/ai/text-to-diagram/generate`,
-              {
-                method: "POST",
-                headers: {
-                  Accept: "application/json",
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ prompt: input }),
-              },
-            );
-
-            const rateLimit = response.headers.has("X-Ratelimit-Limit")
-              ? parseInt(response.headers.get("X-Ratelimit-Limit") || "0", 10)
-              : undefined;
-
-            const rateLimitRemaining = response.headers.has(
-              "X-Ratelimit-Remaining",
-            )
-              ? parseInt(
-                  response.headers.get("X-Ratelimit-Remaining") || "0",
-                  10,
-                )
-              : undefined;
-
-            const json = await response.json();
-
-            if (!response.ok) {
-              if (response.status === 429) {
-                return {
-                  rateLimit,
-                  rateLimitRemaining,
-                  error: new Error(
-                    "Too many requests today, please try again tomorrow!",
-                  ),
-                };
-              }
-
-              throw new Error(json.message || "Generation failed...");
-            }
-
-            const generatedResponse = json.generatedResponse;
-            if (!generatedResponse) {
-              throw new Error("Generation failed...");
-            }
-
-            return { generatedResponse, rateLimit, rateLimitRemaining };
+            const response = await generateMermaidDiagram(input);
+            return response;
           } catch (err: any) {
             throw new Error("Request failed");
           }
         }}
+        // onTextSubmit={async (input) => {
+        //   try {
+        //     const response = await fetch(
+        //       `${
+        //         import.meta.env.VITE_APP_AI_BACKEND
+        //       }/v1/ai/text-to-diagram/generate`,
+        //       {
+        //         method: "POST",
+        //         headers: {
+        //           Accept: "application/json",
+        //           "Content-Type": "application/json",
+        //         },
+        //         body: JSON.stringify({ prompt: input }),
+        //       },
+        //     );
+
+        //     const rateLimit = response.headers.has("X-Ratelimit-Limit")
+        //       ? parseInt(response.headers.get("X-Ratelimit-Limit") || "0", 10)
+        //       : undefined;
+
+        //     const rateLimitRemaining = response.headers.has(
+        //       "X-Ratelimit-Remaining",
+        //     )
+        //       ? parseInt(
+        //           response.headers.get("X-Ratelimit-Remaining") || "0",
+        //           10,
+        //         )
+        //       : undefined;
+
+        //     const json = await response.json();
+
+        //     if (!response.ok) {
+        //       if (response.status === 429) {
+        //         return {
+        //           rateLimit,
+        //           rateLimitRemaining,
+        //           error: new Error(
+        //             "Too many requests today, please try again tomorrow!",
+        //           ),
+        //         };
+        //       }
+
+        //       throw new Error(json.message || "Generation failed...");
+        //     }
+
+        //     const generatedResponse = json.generatedResponse;
+        //     if (!generatedResponse) {
+        //       throw new Error("Generation failed...");
+        //     }
+
+        //     return { generatedResponse, rateLimit, rateLimitRemaining };
+        //   } catch (err: any) {
+        //     throw new Error("Request failed");
+        //   }
+        // }}
       />
     </>
   );

@@ -1,0 +1,24 @@
+.OpenAIKeyDialog {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.OpenAIKeyDialog__desc {
+  margin: 0;
+  color: var(--muted-foreground);
+}
+
+.OpenAIKeyDialog__input {
+  display: flex;
+}
+
+.OpenAIKeyDialog__field {
+  width: 100%;
+}
+
+.OpenAIKeyDialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 6px;
+}
